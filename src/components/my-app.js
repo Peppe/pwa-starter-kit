@@ -18,6 +18,7 @@ import { updateMetadata } from 'pwa-helpers/metadata.js';
 
 // This element is connected to the Redux store.
 import { store } from '../store.js';
+import { Router } from '@vaadin/router/dist/vaadin-router.js';
 
 // These are the actions needed by this element.
 import {
@@ -34,9 +35,15 @@ import '@polymer/app-layout/app-scroll-effects/effects/waterfall.js';
 import '@polymer/app-layout/app-toolbar/app-toolbar.js';
 import { menuIcon } from './my-icons.js';
 import './snack-bar.js';
+import './my-view1.js';
 
 class MyApp extends connect(store)(LitElement) {
   _render({appTitle, _page, _drawerOpened, _snackbarOpened, _offline}) {
+    let path = ""
+    if(this.route){
+      path = this.route.pathname;
+    }
+    console.log("path: " + path);
     // Anything that's related to rendering should be done in here.
     return html`
     <style>
@@ -137,14 +144,6 @@ class MyApp extends connect(store)(LitElement) {
         min-height: 100vh;
       }
 
-      .page {
-        display: none;
-      }
-
-      .page[active] {
-        display: block;
-      }
-
       footer {
         padding: 24px;
         background: var(--app-drawer-background-color);
@@ -201,11 +200,7 @@ class MyApp extends connect(store)(LitElement) {
     </app-drawer>
 
     <!-- Main content -->
-    <main class="main-content">
-      <my-view1 class="page" active?="${_page === 'view1'}"></my-view1>
-      <my-view2 class="page" active?="${_page === 'view2'}"></my-view2>
-      <my-view3 class="page" active?="${_page === 'view3'}"></my-view3>
-      <my-view404 class="page" active?="${_page === 'view404'}"></my-view404>
+    <main id="main" class="main-content">
     </main>
 
     <footer>
@@ -235,10 +230,28 @@ class MyApp extends connect(store)(LitElement) {
   }
 
   _firstRendered() {
-    installRouter((location) => store.dispatch(navigate(window.decodeURIComponent(location.pathname))));
+    //installRouter((location) => store.dispatch(navigate(window.decodeURIComponent(location.pathname))));
+    this._installRouter();
     installOfflineWatcher((offline) => store.dispatch(updateOffline(offline)));
     installMediaQueryWatcher(`(min-width: 460px)`,
         (matches) => store.dispatch(updateLayout(matches)));
+  }
+
+  _installRouter(){
+    const router = new Router(this.shadowRoot.getElementById("main"));
+    router.setRoutes([
+      {path: '/', bundle:`src/components/my-view1.js`, component: 'my-view1'},
+      {path: '/view1', bundle:`src/components/my-view1.js`, component: 'my-view1'},
+      {path: '/view2', bundle:`src/components/my-view2.js`, component: 'my-view2'},
+      {path: '/view3', bundle:`src/components/my-view3.js`, component: 'my-view3'},
+      {path: '(.*)', bundle:`src/components/my-view404.js`, component: 'my-view404'}
+    ]);
+    /*{path: '/info', component: 'info-view'},
+      {path: '/about', redirect: '/info'},
+      {path: '/user/list', component: 'user-list-view'},
+      {path: '/user/:user', component: 'user-profile-view'},
+      {path: '/terms', bundle:`src/views/terms-view.js`, component: 'terms-view'},
+      {path: '(.*)', component: 'not-found-view'}*/
   }
 
   _didRender(properties, changeList) {

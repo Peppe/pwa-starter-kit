@@ -8,8 +8,7 @@ Code distributed by Google as part of the polymer project is also
 subject to an additional IP rights grant found at http://polymer.github.io/PATENTS.txt
 */
 
-import { html } from '@polymer/lit-element';
-import { PageViewElement } from './page-view-element.js';
+import { html, LitElement } from '@polymer/lit-element';
 import { connect } from 'pwa-helpers/connect-mixin.js';
 
 // This element is connected to the Redux store.
@@ -32,7 +31,7 @@ import './shop-cart.js';
 import { SharedStyles } from './shared-styles.js';
 import { ButtonSharedStyles } from './button-shared-styles.js';
 
-class MyView3 extends connect(store)(PageViewElement) {
+class MyView3 extends connect(store)(LitElement) {
   _render({_quantity, _error}) {
     return html`
       ${SharedStyles}
